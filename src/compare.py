@@ -3,10 +3,10 @@ import sys
 import openai
 
 def compare_responses(user_response, correct_answer, question_text):
-    prompt = f"give a very brief feedback of under 20 words for answer that user gave {user_response} , for the {question_text} , you also need to strictly score user's response out of 10 which should strongly depend on how much relevant is user's response : {user_response} to that of question: {question_text} , irrelavant answers should be scored 0  , incomplete answer should be scored below 5."
+    prompt = f"give a very brief feedback of under 20 words for answer that user gave {user_response} , for the {question_text} to that of {correct_answer}, you also need to strictly score user's response out of 10 which should strongly depend on how much relevant is user's response : {user_response} to that of question: {question_text} , irrelavant answers should stritcly be scored 0  , incomplete answer that are somewhat correct should be scored below 3 , only complete satisfactory answers should be scored above 7."
 
     # Set your OpenAI API key
-    openai.api_key = 'API-KEY'
+    openai.api_key = ''
 
     # Use the GPT-3.5 model to generate a comparison
     response = openai.Completion.create(

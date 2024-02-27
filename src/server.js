@@ -8,10 +8,11 @@ const PORT = 5000;
 app.use(express.json());
 app.use(cors());
 
-// Existing endpoint for generating questions
+/// Existing endpoint for generating questions
 app.post('/generateQuestions', (req, res) => {
   const { techStack, totalQuestions } = req.body;
 
+  // Adjusting the command to include the count of questions
   const command = `python main.py --techStack=${techStack} --totalQuestions=${totalQuestions}`;
 
   exec(command, (error, stdout, stderr) => {
@@ -22,11 +23,13 @@ app.post('/generateQuestions', (req, res) => {
     if (stderr) {
       console.error(`stderr: ${stderr}`);
     }
+
     const questions = JSON.parse(stdout);
-    res.json({ questions });
+
+    // Ensure that only the specified number of questions is sent in the response
+    res.json({ questions: questions.slice(0, totalQuestions) });
   });
 });
-
 // Updated route to handle submitted results array and compare iteratively
 app.post('/submitResults', async (req, res) => {
   const { resultsArray } = req.body;

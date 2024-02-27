@@ -1,10 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'; 
+
 
 const QuesList = () => {
   const [tableNames, setTableNames] = useState([]);
   const [techStack, setTechStack] = useState('');
   const [numQuestions, setNumQuestions] = useState(0);
+  const bodyLanguageFeedback = [
+    "You should maintain better eye contact with the interviewer.",
+    "Try to appear more confident and relaxed during the interview.",
+    "Work on controlling any nervous habits or expressions.",
+    "Ensure your facial expressions match the tone of your responses.",
+    "Practice maintaining a neutral facial expression to appear composed.",
+    "Make sure to smile naturally and appropriately during the interview.",
+    "Avoid excessive blinking or fidgeting with your hands or face.",
+    "Maintain a steady gaze to convey attentiveness and engagement.",
+    "Work on projecting enthusiasm and energy through your facial expressions.",
+    "Practice mirroring the interviewer's body language to build rapport.",
+    "Focus on maintaining a calm and collected demeanor throughout the interview.",
+    "Remember to breathe deeply and evenly to reduce nervousness."
+  ];
+  
   const [questions, setQuestions] = useState([]);
   const [userResponses, setUserResponses] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -20,6 +36,23 @@ const QuesList = () => {
   useEffect(() => {
     spokenTextsRef.current = [];
   }, [questions]); // Reset spokenTextsRef when questions change
+
+useEffect(() => {
+    if (feedbackArray.length > 0) {
+      handleSpeak("Feedback Results are available. You Can Check Your Score Right On Your Screen , Your Scores are as per your responses.");
+  
+      // Select a random feedback message for improving body language
+      const randomIndex = Math.floor(Math.random() * bodyLanguageFeedback.length);
+      const randomBodyLanguageFeedback = bodyLanguageFeedback[randomIndex];
+
+      // Append randomBodyLanguageFeedback to feedbackArray without using setFeedbackArray
+      feedbackArray.push(randomBodyLanguageFeedback);
+  
+      handleSpeak(randomBodyLanguageFeedback);
+    }
+}, [feedbackArray]);
+
+  
 
   //transcribe and listen iteratively
   useEffect(() => {
@@ -88,7 +121,7 @@ const QuesList = () => {
       chunks.push(text.slice(i, i + chunkSize));
     }
 
-    const playChunk = (index) => {
+    const playChunk = (index) => {         //speaking questions
       if (index < chunks.length) {
         const utterance = new SpeechSynthesisUtterance(chunks[index]);
 
@@ -198,6 +231,8 @@ const QuesList = () => {
     }
   };
 
+  //notusing below
+
   const submitResultsManually = () => {
     if (finalResultsMap && questions.length > 0 && !isResultsSubmitted) {
       submitResultsToServer(finalResultsMap, questions);
@@ -255,7 +290,7 @@ const QuesList = () => {
           onClick={startListening}
           disabled={!SpeechRecognition.browserSupportsSpeechRecognition() || currentQuestionIndex === questions.length}
         >
-          Start Listening
+          Answer Now
         </button>
       )}
 

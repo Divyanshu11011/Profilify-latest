@@ -3,6 +3,7 @@
 import mysql.connector
 import json
 import argparse
+import random
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description="Generate questions based on tech stack and total questions.")
@@ -16,7 +17,7 @@ con = mysql.connector.connect(
     user="root",
     password="div123",
     host="localhost",
-    database="mydatabase"  # Replace with the actual name of your database
+    database="TechQuestions"  # Replace with the actual name of your database
 )
 
 cursor = con.cursor()
@@ -53,14 +54,25 @@ difficulty_counts = {level: round(distribution_percent * args.totalQuestions) fo
 questions = []
 
 # Fetch questions for each difficulty level
+
 for difficulty, count in difficulty_counts.items():
-    query = f"SELECT * FROM {tech_stack} WHERE difficulty = %s ORDER BY RAND() LIMIT %s"
-    cursor.execute(query, (difficulty, count))
-    questions.extend(cursor.fetchall())
+    query = f"SELECT * FROM {tech_stack} WHERE difficulty = %s"
+    cursor.execute(query, (difficulty,))
+    
+    all_questions = cursor.fetchall()
+    
+    # Ensure that the count does not exceed the available questions
+    count = min(count, len(all_questions))
+    
+    # Randomly sample the questions
+    selected_questions = random.sample(all_questions, count)
+
+    questions.extend(selected_questions)
 
 # Sort the questions based on difficulty level (Easy -> Medium -> Hard)
 sorted_questions = sorted(questions, key=lambda x: ("Easy", "Medium", "Hard").index(x[3]))
 
+# Display the fetched questions
 # Display the fetched questions
 if sorted_questions:
     result = [
@@ -70,11 +82,12 @@ if sorted_questions:
             "answer_text": question[2],
             "difficulty_level": question[3],
         }
-        for question in sorted_questions
+        for question in sorted_questions[:args.totalQuestions]
     ]
     print(json.dumps(result))
 else:
     print("No questions found for the specified tech stack and difficulty levels.")
+
 
 # Close the cursor and connection
 cursor.close()
